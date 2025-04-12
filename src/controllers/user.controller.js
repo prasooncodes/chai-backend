@@ -105,6 +105,7 @@ const loginUser = asyncHandler( async (req, res) => {
 
     //get user details from frontend
     const {email, username, password} = req.body
+    console.log("email", email);
     
     //username or email
     if(!(username || !email)) {
@@ -154,26 +155,28 @@ const loginUser = asyncHandler( async (req, res) => {
 })     
 
 const logoutUser = asyncHandler(async(req, res) => {
-    await User.findByIdAndUpdate(req.user._id, {
-        $set: {
-            refreshToken: undefined
-        }
-    },
-    {
-        new: true
-    })
-
-    const options = {
-        httpOnly: true,
-        secure: true,
+    try {
+        await User.findByIdAndUpdate(req.user._id, {
+            $unset: { refreshToken: 1 }
+        },
+        {
+            new: true
+        });
+    
+        const options = {
+            httpOnly: true,
+            secure: true,
+        };
+    
+        return res
+            .status(200)
+            .clearCookie("accessToken", options)
+            .clearCookie("refreshToken", options)
+            .json(new ApiResponse(200, {}, "User logged out successfully"));
+    } catch (error) {
+        throw new ApiError("Error logging out user", 500);
     }
-
-    return res
-        .status(200)
-        .clearCookie("accessToken", options)
-        .clearCookie("refreshToken", options)
-        .json(new ApiResponse(200, {}, "User logged out successfully"))
-})
+});
 
 export { 
     registerUser, 
