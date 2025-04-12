@@ -61,7 +61,7 @@ userSchema.methods.isPasswordCorrect = async function(password) {
 
 //for validating with password first time
 userSchema.methods.generateAccessToken = async function() {
-    jwt.sign({
+    await jwt.sign({
         _id: this._id,
         email: this.email,
         username: this.username,
@@ -76,7 +76,7 @@ userSchema.methods.generateAccessToken = async function() {
 
 //for validating again without need of password
 userSchema.methods.generateRefreshToken = async function() {
-    jwt.sign({
+    await jwt.sign({
         _id: this._id,
     },
     process.env.REFRESH_TOKEN_SECRET,
